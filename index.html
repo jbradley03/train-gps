@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Train GPS logger</title>
+<style>
+  body { font: 16px/1.4 system-ui, sans-serif; max-width: 480px; margin: 0 auto; padding: 16px; }
+  input, select, button { width: 100%; font-size: 16px; padding: 10px; margin: 4px 0 10px; box-sizing: border-box; }
+  #speed { font-size: 40px; font-weight: bold; }
+  #msg { color: #b45309; }
+</style>
+</head>
+<body>
+<h1>Train GPS logger</h1>
+
+<label for="fromStation">From:</label>
+<select id="fromStation">
+  <option value="">Choose a station</option>
+</select>
+
+<label for="toStation">To:</label>
+<select id="toStation">
+  <option value="">Choose a station</option>
+</select>
+<!-- <label>Route <input id="route" placeholder="e.g. DART Howth Junction to Bray"></label> -->
+<label>Store a point every
+  <select id="interval">
+    <option value="1">1 s</option>
+    <option value="2" selected>2 s</option>
+    <option value="5">5 s</option>
+  </select>
+</label>
+
+<button id="start">Start</button>
+<button id="stop" disabled>Stop</button>
+<button id="download">Download CSV</button>
+<button id="clear">Clear saved points</button>
+
+<p><span id="speed">--</span> km/h</p>
+<p>Points: <span id="count">0</span> &nbsp; Accuracy: <span id="acc">--</span></p>
+<p id="msg"></p>
+
+<script src="main.js"></script>
+
+
+
+</body>
+</html>
