@@ -61,7 +61,8 @@ function onPosition(pos) {
   lastTs = pos.timestamp;
   points.push({
     time: new Date(pos.timestamp).toISOString(),
-    route: document.getElementById("route").value,
+    from_station: fromDropdown.value,
+    to_station: toDropdown.value,
     lat: c.latitude,
     lon: c.longitude,
     accuracy_m: c.accuracy,
@@ -89,9 +90,9 @@ document.getElementById("stop").onclick = () => {
 };
 
 document.getElementById("download").onclick = () => {
-  const cols = ["time", "route", "lat", "lon", "accuracy_m", "speed_mps"];
+  const cols = ["time", "from_station", "to_station", "lat", "lon", "accuracy_m", "speed_mps"];
   const lines = [cols.join(",")].concat(
-    points.map((p) => cols.map((k) => (p[k] == null ? "" : `"document.getElementById{String(p[k]).replace(/"/g, '""')}"`)).join(","))
+    points.map((p) => cols.map((k) => (p[k] == null ? "" : `"${String(p[k]).replace(/"/g, '""')}"`)).join(","))
   );
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([lines.join("\n")], { type: "text/csv" }));
