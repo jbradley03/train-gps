@@ -7,10 +7,10 @@ const stations = [
   "Malahide",
   "Portmarnock",
   "Clongriffin",
-  "Howth Junction & Donaghmede",
   "Howth",
   "Sutton",
   "Bayside",
+  "Howth Junction & Donaghmede",
   "Kilbarrack",
   "Raheny",
   "Harmonstown",
@@ -52,6 +52,13 @@ function save() {
   catch (e) { document.getElementById("msg").textContent = "Phone storage full - download the CSV now."; }
 }
 
+// yyyy-mm-dd hh:mm:ss in local time
+function formatTime(ts) {
+  const d = new Date(ts);
+  const p = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+}
+
 function onPosition(pos) {
   const c = pos.coords;
   document.getElementById("speed").textContent = c.speed == null ? "--" : (c.speed * 3.6).toFixed(0);
@@ -60,7 +67,7 @@ function onPosition(pos) {
   if (pos.timestamp - lastTs < document.getElementById("interval").value * 1000) return;
   lastTs = pos.timestamp;
   points.push({
-    time: new Date(pos.timestamp).toISOString(),
+    time: formatTime(pos.timestamp),
     from_station: fromDropdown.value,
     to_station: toDropdown.value,
     lat: c.latitude,
