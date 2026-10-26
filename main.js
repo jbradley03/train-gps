@@ -59,6 +59,12 @@ function formatTime(ts) {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
 }
 
+// convert points saved before the format change (ISO, e.g. 2026-10-21T11:29:23.495Z)
+for (const p of points) {
+  if (p.time && p.time.includes("T")) p.time = formatTime(Date.parse(p.time));
+}
+save();
+
 function onPosition(pos) {
   const c = pos.coords;
   document.getElementById("speed").textContent = c.speed == null ? "--" : (c.speed * 3.6).toFixed(0);
