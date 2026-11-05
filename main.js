@@ -1,3 +1,9 @@
+import { db, ensureSignedIn } from "./firebase.js";
+import {
+  collection, doc, setDoc, updateDoc, serverTimestamp, Timestamp
+} from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
+
 let points = [];
 try { points = JSON.parse(localStorage.getItem("points")) || []; } catch (e) {}
 let watchId = null;
