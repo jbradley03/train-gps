@@ -9,6 +9,13 @@ try { points = JSON.parse(localStorage.getItem("points")) || []; } catch (e) {}
 let watchId = null;
 let lastTs = 0;
 
+let tripRef = null;
+let tripPoints = 0;
+
+function showCloudError(e) {
+  document.getElementById("msg").textContent = "Cloud upload error: " + e.message;
+}
+
 const stations = [
   "Malahide",
   "Portmarnock",
@@ -88,21 +95,55 @@ function onPosition(pos) {
     speed_mps: c.speed,
   });
   save();
+  if (tripRef) {
+    tripPoints++;
+    setDoc(doc(collection(tripRef, "points")), {
+      gps_time: Timestamp.fromMillis(pos.timestamp), 
+      server_time: serverTimestamp(),
+      lat: c.latitude,
+      lon: c.longitude,
+      accuracy_m: c.accuracy,
+      speed_mps: c.speed,
+    }).catch(showCloudError);
+  }
   document.getElementById("count").textContent = points.length;
 }
 
-document.getElementById("start").onclick = () => {
+document.getElementById("start").onclick = async () => {
   if (!navigator.geolocation) { document.getElementById("msg").textContent = "No geolocation in this browser."; return; }
+  if (!fromDropdown.value || !toDropdown.value) { document.getElementById("msg").textContent = "Pick both stations first."; return; }
+  document.getElementById("start").disabled = true;
+
+  try {
+    await ensureSignedIn();
+    tripRef = doc(collection(db, "trips"));
+    tripPoints = 0;
+    setDoc(tripRef, {
+      from_station: fromDropdown.value,
+      to_station: toDropdown.value,
+      interval_s: Number(document.getElementById("interval").value),
+      started_at: serverTimestamp(),
+    }).catch(showCloudError);
+  } catch (e) {
+    tripRef = null;               // keep recording locally even if sign-in fails
+    showCloudError(e);
+  }
+
   watchId = navigator.geolocation.watchPosition(onPosition,
     (err) => { document.getElementById("msg").textContent = "GPS error: " + err.message; },
     { enableHighAccuracy: true, maximumAge: 0 });
-  document.getElementById("start").disabled = true;
   document.getElementById("stop").disabled = false;
-  document.getElementById("msg").textContent = "Recording - keep the screen on.";
+  if (tripRef) document.getElementById("msg").textContent = "Recording + uploading - keep the screen on.";
 };
+
 
 document.getElementById("stop").onclick = () => {
   navigator.geolocation.clearWatch(watchId);
+  if (tripRef) {
+    updateDoc(tripRef, { ended_at: serverTimestamp(), point_count: tripPoints }).catch(showCloudError);
+    tripRef = null;
+  }
+
   document.getElementById("start").disabled = false;
   document.getElementById("stop").disabled = true;
   document.getElementById("msg").textContent = "Stopped.";
